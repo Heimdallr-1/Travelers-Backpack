@@ -13,7 +13,7 @@ import com.tiviacz.travelersbackpack.entity.BackpackItemEntity;
 import com.tiviacz.travelersbackpack.init.ModItems;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import com.tiviacz.travelersbackpack.inventory.Tiers;
-import com.tiviacz.travelersbackpack.inventory.TravelersBackpackContainer;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.util.BackpackUtils;
 import com.tiviacz.travelersbackpack.util.Reference;
 import net.minecraft.ChatFormatting;
@@ -100,7 +100,7 @@ public class TravelersBackpackItem extends BlockItem
         {
             if(!level.isClientSide)
             {
-                TravelersBackpackContainer.openGUI((ServerPlayer) player, player.getInventory().getSelected(), Reference.ITEM_SCREEN_ID);
+                BackpackWrapper.openGUI((ServerPlayer) player, player.getInventory().getSelected(), Reference.ITEM_SCREEN_ID);
             }
         }
         else
@@ -201,7 +201,7 @@ public class TravelersBackpackItem extends BlockItem
             //Create blank container and save to stack to initialize proper data if different tier than leather
             if(pStack.getTag() != null && (pStack.getTag().getAllKeys().size() == 1 && pStack.getTag().contains(ITravelersBackpackContainer.TIER)))
             {
-                TravelersBackpackContainer blank = new TravelersBackpackContainer(pStack, null, Reference.ITEM_SCREEN_ID);
+                BackpackWrapper blank = new BackpackWrapper(pStack, null, Reference.ITEM_SCREEN_ID);
                 blank.saveAllData(pStack.getOrCreateTag());
             }
 

@@ -8,6 +8,7 @@ import com.tiviacz.travelersbackpack.client.screens.widgets.*;
 import com.tiviacz.travelersbackpack.common.ServerActions;
 import com.tiviacz.travelersbackpack.config.TravelersBackpackConfig;
 import com.tiviacz.travelersbackpack.handlers.ModClientEventHandler;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import com.tiviacz.travelersbackpack.inventory.menu.TravelersBackpackBaseMenu;
 import com.tiviacz.travelersbackpack.inventory.sorter.ContainerSorter;
@@ -56,7 +57,7 @@ public class TravelersBackpackScreen extends AbstractContainerScreen<TravelersBa
     public TankSlotWidget rightTankSlotWidget;
     public CraftingWidget craftingWidget;
 
-    public final ITravelersBackpackContainer container;
+    public final BackpackWrapper container;
     private final TankScreen tankLeft;
     private final TankScreen tankRight;
 
@@ -69,7 +70,7 @@ public class TravelersBackpackScreen extends AbstractContainerScreen<TravelersBa
     public TravelersBackpackScreen(TravelersBackpackBaseMenu screenContainer, Inventory inventory, Component component)
     {
         super(screenContainer, inventory, component);
-        this.container = screenContainer.container;
+        this.container = screenContainer.wrapper;
 
         this.leftPos = 0;
         this.topPos = 0;
@@ -153,11 +154,11 @@ public class TravelersBackpackScreen extends AbstractContainerScreen<TravelersBa
         buttons.add(new UnequipButton(this));
         buttons.add(new AbilitySliderButton(this));
 
-        if (getMenu().container.getScreenID() == Reference.BLOCK_ENTITY_SCREEN_ID) {
+        if (getMenu().wrapper.getScreenID() == Reference.BLOCK_ENTITY_SCREEN_ID) {
             buttons.add(new SleepingBagButton(this));
         }
 
-        if (getMenu().container.getScreenID() == Reference.WEARABLE_SCREEN_ID) {
+        if (getMenu().wrapper.getScreenID() == Reference.WEARABLE_SCREEN_ID) {
             buttons.add(new VisibilityButton(this));
         }
     }
@@ -509,7 +510,7 @@ public class TravelersBackpackScreen extends AbstractContainerScreen<TravelersBa
             {
                 TravelersBackpack.NETWORK.sendToServer(new ServerboundSpecialActionPacket(container.getScreenID(), Reference.EMPTY_TANK, 1));
 
-                if(container.getScreenID() == Reference.ITEM_SCREEN_ID) ServerActions.emptyTank(1, menu.inventory.player, container.level(), container.getScreenID());
+                if(container.getScreenID() == Reference.ITEM_SCREEN_ID) ServerActions.emptyTank(1, menu.inventory.player, menu.inventory.player.level(), container.getScreenID());
             }
         }
 
@@ -520,7 +521,7 @@ public class TravelersBackpackScreen extends AbstractContainerScreen<TravelersBa
             {
                 TravelersBackpack.NETWORK.sendToServer(new ServerboundSpecialActionPacket(container.getScreenID(), Reference.EMPTY_TANK, 2));
 
-                if(container.getScreenID() == Reference.ITEM_SCREEN_ID) ServerActions.emptyTank(2, menu.inventory.player, container.level(), container.getScreenID());
+                if(container.getScreenID() == Reference.ITEM_SCREEN_ID) ServerActions.emptyTank(2, menu.inventory.player, menu.inventory.player.level(), container.getScreenID());
             }
         }
 

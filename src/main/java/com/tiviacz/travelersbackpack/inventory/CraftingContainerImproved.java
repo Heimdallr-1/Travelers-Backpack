@@ -17,10 +17,10 @@ public class CraftingContainerImproved implements CraftingContainer
     private final AbstractContainerMenu menu;
     public boolean checkChanges = true;
 
-    public CraftingContainerImproved(ITravelersBackpackContainer container, AbstractContainerMenu menu)
+    public CraftingContainerImproved(BackpackWrapper wrapper, AbstractContainerMenu menu)
     {
         super();
-        this.handler = container.getCraftingGridHandler();
+        this.handler = wrapper.getCraftingGridHandler();
         this.menu = menu;
     }
 

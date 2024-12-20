@@ -129,7 +129,7 @@ public class TravelersBackpackBlock extends Block implements EntityBlock
     {
         if(level.getBlockEntity(pos) instanceof TravelersBackpackBlockEntity blockEntity)
         {
-            blockEntity.openGUI(player, blockEntity, pos);
+            blockEntity.openBackpack(player, blockEntity, pos);
         }
         return InteractionResult.SUCCESS;
     }
@@ -223,7 +223,7 @@ public class TravelersBackpackBlock extends Block implements EntityBlock
     {
         if(world.getBlockEntity(pos) instanceof TravelersBackpackBlockEntity blockEntity)
         {
-            if(blockEntity.getAbilityValue() && state.getBlock() == ModBlocks.BOOKSHELF_TRAVELERS_BACKPACK.get())
+            if(blockEntity.getWrapper().getAbilityValue() && state.getBlock() == ModBlocks.BOOKSHELF_TRAVELERS_BACKPACK.get())
             {
                 return 5.0F;
             }
@@ -236,7 +236,7 @@ public class TravelersBackpackBlock extends Block implements EntityBlock
     {
         if(getter.getBlockEntity(pos) instanceof TravelersBackpackBlockEntity blockEntity)
         {
-            if(blockEntity.getAbilityValue() && state.getBlock() == ModBlocks.REDSTONE_TRAVELERS_BACKPACK.get())
+            if(blockEntity.getWrapper().getAbilityValue() && state.getBlock() == ModBlocks.REDSTONE_TRAVELERS_BACKPACK.get())
             {
                 return 15;
             }
@@ -274,7 +274,7 @@ public class TravelersBackpackBlock extends Block implements EntityBlock
     {
         if(level.getBlockEntity(pos) instanceof TravelersBackpackBlockEntity blockEntity)
         {
-            if(blockEntity.getAbilityValue() && ((blockEntity.getLeftTank().isEmpty() || (blockEntity.getLeftTank().getFluid().getFluid().isSame(Fluids.WATER) && blockEntity.getLeftTank().getFluidAmount() < blockEntity.getLeftTank().getCapacity())) || (blockEntity.getRightTank().isEmpty() || (blockEntity.getRightTank().getFluid().getFluid().isSame(Fluids.WATER) && blockEntity.getRightTank().getFluidAmount() < blockEntity.getRightTank().getCapacity()))))
+            if(blockEntity.getWrapper().getAbilityValue() && ((blockEntity.getWrapper().getLeftTank().isEmpty() || (blockEntity.getWrapper().getLeftTank().getFluid().getFluid().isSame(Fluids.WATER) && blockEntity.getWrapper().getLeftTank().getFluidAmount() < blockEntity.getWrapper().getLeftTank().getCapacity())) || (blockEntity.getWrapper().getRightTank().isEmpty() || (blockEntity.getWrapper().getRightTank().getFluid().getFluid().isSame(Fluids.WATER) && blockEntity.getWrapper().getRightTank().getFluidAmount() < blockEntity.getWrapper().getRightTank().getCapacity()))))
             {
                 if(this.removeWaterBreadthFirstSearch(level, pos, blockEntity))
                 {
@@ -301,15 +301,15 @@ public class TravelersBackpackBlock extends Block implements EntityBlock
                 if (fluidstate.is(FluidTags.WATER)) {
                     if (blockstate.getBlock() instanceof BucketPickup && !((BucketPickup)blockstate.getBlock()).pickupBlock(p_56808_, blockpos1, blockstate).isEmpty()) {
                         ++i;
-                        if(blockEntity.getLeftTank().isEmpty() || (blockEntity.getLeftTank().getFluid().getFluid().isSame(Fluids.WATER) && blockEntity.getLeftTank().getFluidAmount() < blockEntity.getLeftTank().getCapacity()))
+                        if(blockEntity.getWrapper().getLeftTank().isEmpty() || (blockEntity.getWrapper().getLeftTank().getFluid().getFluid().isSame(Fluids.WATER) && blockEntity.getWrapper().getLeftTank().getFluidAmount() < blockEntity.getWrapper().getLeftTank().getCapacity()))
                         {
-                            blockEntity.getLeftTank().fill(new FluidStack(Fluids.WATER, Reference.BUCKET), IFluidHandler.FluidAction.EXECUTE);
+                            blockEntity.getWrapper().getLeftTank().fill(new FluidStack(Fluids.WATER, Reference.BUCKET), IFluidHandler.FluidAction.EXECUTE);
                         }
                         else
                         {
-                            if(blockEntity.getRightTank().isEmpty() || (blockEntity.getRightTank().getFluid().getFluid().isSame(Fluids.WATER) && blockEntity.getRightTank().getFluidAmount() < blockEntity.getRightTank().getCapacity()))
+                            if(blockEntity.getWrapper().getRightTank().isEmpty() || (blockEntity.getWrapper().getRightTank().getFluid().getFluid().isSame(Fluids.WATER) && blockEntity.getWrapper().getRightTank().getFluidAmount() < blockEntity.getWrapper().getRightTank().getCapacity()))
                             {
-                                blockEntity.getRightTank().fill(new FluidStack(Fluids.WATER, Reference.BUCKET), IFluidHandler.FluidAction.EXECUTE);
+                                blockEntity.getWrapper().getRightTank().fill(new FluidStack(Fluids.WATER, Reference.BUCKET), IFluidHandler.FluidAction.EXECUTE);
                             }
                         }
                         if (j < 6) {

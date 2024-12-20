@@ -6,6 +6,7 @@ import com.tiviacz.travelersbackpack.TravelersBackpack;
 import com.tiviacz.travelersbackpack.client.renderer.RenderData;
 import com.tiviacz.travelersbackpack.common.recipes.BackpackDyeRecipe;
 import com.tiviacz.travelersbackpack.init.ModItems;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import com.tiviacz.travelersbackpack.items.TravelersBackpackItem;
 import com.tiviacz.travelersbackpack.util.RenderUtils;
@@ -50,7 +51,7 @@ public class BackpackBlockModel {
         this.wolfNose = rootPart.getChild("wolfNose");
     }
 
-    public void render(ITravelersBackpackContainer container, PoseStack poseStack, MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
+    public void render(BackpackWrapper container, PoseStack poseStack, MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
         if (!(container.getItemStack().getItem() instanceof TravelersBackpackItem travelersBackpackItem)) return;
         ResourceLocation loc = travelersBackpackItem.getBackpackTexture();
         VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.entityTranslucent(loc));

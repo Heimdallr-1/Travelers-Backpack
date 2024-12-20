@@ -39,14 +39,14 @@ public class ItemTransferInfo implements IRecipeTransferInfo<TravelersBackpackIt
     @Override
     public boolean canHandle(TravelersBackpackItemMenu container, CraftingRecipe recipe)
     {
-        return container.container.getSettingsManager().hasCraftingGrid();
+        return container.getWrapper().getSettingsManager().hasCraftingGrid();
     }
 
     @Override
     public List<Slot> getRecipeSlots(TravelersBackpackItemMenu container, CraftingRecipe recipe)
     {
         List<Slot> list = new ArrayList<>();
-        int firstCraftSlot = container.container.getCombinedHandler().getSlots() - 8;
+        int firstCraftSlot = container.getWrapper().getCombinedHandler().getSlots() - 8;
 
         for(int i = 0; i < 9; i++)
         {
@@ -62,15 +62,15 @@ public class ItemTransferInfo implements IRecipeTransferInfo<TravelersBackpackIt
         List<Slot> list = new ArrayList<>();
 
         //Backpack Inv
-        for(int i = 1; i <= container.container.getHandler().getSlots(); i++)
+        for(int i = 1; i <= container.getWrapper().getHandler().getSlots(); i++)
         {
             list.add(container.getSlot(i));
         }
 
         //Player Inv
-        for(int i = container.container.getCombinedHandler().getSlots() + 1; i < container.container.getCombinedHandler().getSlots() + 1 + Inventory.INVENTORY_SIZE; i++)
+        for(int i = container.getWrapper().getCombinedHandler().getSlots() + 1; i < container.getWrapper().getCombinedHandler().getSlots() + 1 + Inventory.INVENTORY_SIZE; i++)
         {
-            if(container.container.getScreenID() == Reference.ITEM_SCREEN_ID && container.getSlot(i) instanceof DisabledSlot) continue;
+            if(container.getWrapper().getScreenID() == Reference.ITEM_SCREEN_ID && container.getSlot(i) instanceof DisabledSlot) continue;
 
             list.add(container.getSlot(i));
         }

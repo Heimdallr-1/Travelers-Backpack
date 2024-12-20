@@ -3,6 +3,7 @@ package com.tiviacz.travelersbackpack.inventory.menu;
 import com.mojang.datafixers.util.Pair;
 import com.tiviacz.travelersbackpack.TravelersBackpack;
 import com.tiviacz.travelersbackpack.config.TravelersBackpackConfig;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.CraftingContainerImproved;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import com.tiviacz.travelersbackpack.inventory.menu.slot.BackpackSlotItemHandler;
@@ -32,9 +33,10 @@ import net.minecraftforge.network.PacketDistributor;
 public class TravelersBackpackBaseMenu extends AbstractContainerMenu
 {
     public Inventory inventory;
-    public ITravelersBackpackContainer container;
+    public BackpackWrapper wrapper;
     public CraftingContainerImproved craftSlots;
     public ResultContainer resultSlots = new ResultContainer();
+    public Player player;
 
     private final int BACKPACK_INV_START = 1, BACKPACK_INV_END;
     private final int TOOL_START, TOOL_END;
@@ -43,17 +45,18 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
     private final int PLAYER_INV_START, PLAYER_HOT_END;
     private final int CRAFTING_GRID_START, CRAFTING_GRID_END;
 
-    public TravelersBackpackBaseMenu(final MenuType<?> type, final int windowID, final Inventory inventory, final ITravelersBackpackContainer container)
+    public TravelersBackpackBaseMenu(final MenuType<?> type, final int windowID, final Inventory inventory, final BackpackWrapper wrapper)
     {
         super(type, windowID);
         this.inventory = inventory;
-        this.container = container;
-        this.craftSlots = new CraftingContainerImproved(container, this);
+        this.player = inventory.player;
+        this.wrapper = wrapper;
+        this.craftSlots = new CraftingContainerImproved(wrapper, this);
 
         //Craft result = 0;
-        this.BACKPACK_INV_END = BACKPACK_INV_START + container.getHandler().getSlots() - 1;
+        this.BACKPACK_INV_END = BACKPACK_INV_START + wrapper.getHandler().getSlots() - 1;
         this.TOOL_START = BACKPACK_INV_END + 1;
-        this.TOOL_END = TOOL_START + container.getToolSlotsHandler().getSlots() - 1;
+        this.TOOL_END = TOOL_START + wrapper.getToolSlotsHandler().getSlots() - 1;
         this.BUCKET_LEFT_IN = TOOL_END + 1;
         this.BUCKET_LEFT_OUT = BUCKET_LEFT_IN + 1;
         this.BUCKET_RIGHT_IN = BUCKET_LEFT_OUT + 1;
@@ -67,11 +70,11 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
         this.addCraftResult();
 
         //Backpack Inventory
-        this.addBackpackInventory(container);
+        this.addBackpackInventory(wrapper);
 
         //Functional Slots
-        this.addToolSlots(container);
-        this.addFluidSlots(container);
+        this.addToolSlots(wrapper);
+        this.addFluidSlots(wrapper);
 
         //Crafting Widget
         this.addCraftingSlots();
@@ -80,63 +83,67 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
         this.addPlayerInventoryAndHotbar(inventory, inventory.selected);
     }
 
-    public void addCraftResult()
-    {
-        this.addSlot(new ResultSlotExt(container, inventory.player, this.craftSlots, this.resultSlots, 0, 270, 113));
+    public BackpackWrapper getWrapper() {
+        return this.wrapper;
     }
 
-    public void addBackpackInventory(ITravelersBackpackContainer container)
+    public void addCraftResult()
+    {
+        this.addSlot(new ResultSlotExt(wrapper, inventory.player, this.craftSlots, this.resultSlots, 0, 270, 113));
+    }
+
+    public void addBackpackInventory(BackpackWrapper wrapper)
     {
         int slot = 0;
 
-        for(int i = 0; i < container.getRows(); i++)
+        for(int i = 0; i < wrapper.getRows(); i++)
         {
-            int lastRowSlots = container.getHandler().getSlots() % 9;
+            int lastRowSlots = wrapper.getHandler().getSlots() % 9;
             if(lastRowSlots == 0) lastRowSlots = 9;
 
-            int slotsInRow = i == container.getRows() - 1 ? lastRowSlots : 9;
+            int slotsInRow = i == wrapper.getRows() - 1 ? lastRowSlots : 9;
 
             for(int j = 0; j < slotsInRow; j++)
             {
-                this.addSlot(new BackpackSlotItemHandler(container.getHandler(), slot++, 44 + j * 18, 7 + i * 18));
+                this.addSlot(new BackpackSlotItemHandler(wrapper.getHandler(), slot++, 44 + j * 18, 7 + i * 18));
             }
         }
     }
 
-    public void addFluidSlots(ITravelersBackpackContainer container)
+    public void addFluidSlots(BackpackWrapper wrapper)
     {
         //Left In bucket
-        this.addSlot(new FluidSlotItemHandler(container, 0, 6, 7)
+        this.addSlot(new FluidSlotItemHandler(wrapper, 0, 6, 7)
         {
             @Override
             public boolean isActive()
             {
-                return !TravelersBackpackBaseMenu.this.container.getSettingsManager().showToolSlots() && super.isActive();
+                return !TravelersBackpackBaseMenu.this.wrapper.getSettingsManager().showToolSlots() && super.isActive();
             }
         });
 
         //Left Out bucket
-        this.addSlot(new FluidSlotItemHandler(container, 1, 6, 37)
+        this.addSlot(new FluidSlotItemHandler(wrapper, 1, 6, 37)
         {
             @Override
             public boolean isActive()
             {
-                return !TravelersBackpackBaseMenu.this.container.getSettingsManager().showToolSlots() && super.isActive();
+                return !TravelersBackpackBaseMenu.this.wrapper.getSettingsManager().showToolSlots() && super.isActive();
             }
         });
 
         //Right In bucket
-        this.addSlot(new FluidSlotItemHandler(container, 2, 226, 7));
+        this.addSlot(new FluidSlotItemHandler(wrapper, 2, 226, 7));
 
         //Right Out bucket
-        this.addSlot(new FluidSlotItemHandler(container, 3, 226, 37));
+        this.addSlot(new FluidSlotItemHandler(wrapper, 3, 226, 37));
     }
 
-    public void addToolSlots(ITravelersBackpackContainer container)
+    public void addToolSlots(BackpackWrapper wrapper)
     {
-        for(int i = 0; i < container.getToolSlotsHandler().getSlots(); i++)
+        for(int i = 0; i < wrapper.getToolSlotsHandler().getSlots(); i++)
         {
-            this.addSlot(new ToolSlotItemHandler(inventory.player, container, i, 6, 7 + 18 * i));
+            this.addSlot(new ToolSlotItemHandler(inventory.player, wrapper, i, 6, 7 + 18 * i));
         }
     }
 
@@ -151,13 +158,13 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
                     @Override
                     public boolean isActive()
                     {
-                        return TravelersBackpackBaseMenu.this.container.getSettingsManager().showCraftingGrid();
+                        return TravelersBackpackBaseMenu.this.wrapper.getSettingsManager().showCraftingGrid();
                     }
 
                     @Override
                     public boolean mayPlace(ItemStack stack)
                     {
-                        return TravelersBackpackBaseMenu.this.container.getSettingsManager().hasCraftingGrid();
+                        return TravelersBackpackBaseMenu.this.wrapper.getSettingsManager().hasCraftingGrid();
                     }
                 });
             }
@@ -170,19 +177,19 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
         {
             for(int x = 0; x < 9; x++)
             {
-                this.addSlot(new Slot(inventory, x + y * 9 + 9, 44 + x*18, (71 + this.container.getYOffset()) + y*18));
+                this.addSlot(new Slot(inventory, x + y * 9 + 9, 44 + x*18, (71 + this.wrapper.getYOffset()) + y*18));
             }
         }
 
         for(int x = 0; x < 9; x++)
         {
-            this.addSlot(new Slot(inventory, x, 44 + x*18, 129 + this.container.getYOffset()));
+            this.addSlot(new Slot(inventory, x, 44 + x*18, 129 + this.wrapper.getYOffset()));
         }
     }
 
     protected void canCraft(Level level, Player player)
     {
-        if(container.getSettingsManager().hasCraftingGrid())
+        if(wrapper.getSettingsManager().hasCraftingGrid())
         {
             slotChangedCraftingGrid(level, player);
         }
@@ -201,7 +208,7 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
         super.sendAllDataToRemote();
 
         //Sync on opening
-        this.slotsChanged(new RecipeWrapper(container.getCraftingGridHandler()));
+        this.slotsChanged(new RecipeWrapper(wrapper.getCraftingGridHandler()));
     }
 
     @Override
@@ -237,9 +244,9 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
             if(index >= PLAYER_INV_START)
             {
                 //Check Memory Slots
-                if(!container.getSlotManager().getMemorySlots().isEmpty())
+                if(!wrapper.getSlotManager().getMemorySlots().isEmpty())
                 {
-                    for(Pair<Integer, ItemStack> pair : container.getSlotManager().getMemorySlots())
+                    for(Pair<Integer, ItemStack> pair : wrapper.getSlotManager().getMemorySlots())
                     {
                         if(ItemStackUtils.isSameItemSameTags(pair.getSecond(), stack) && getSlot(pair.getFirst() + 1).getItem().getCount() != getSlot(pair.getFirst() + 1).getItem().getMaxStackSize())
                         {
@@ -305,7 +312,7 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
 
                 if(!player.level().isClientSide)
                 {
-                    if(container.getSettingsManager().shiftClickToBackpack())
+                    if(wrapper.getSettingsManager().shiftClickToBackpack())
                     {
                         if(!moveItemStackTo(recipeOutput, BACKPACK_INV_START, BACKPACK_INV_END + 1, false))
                         {
@@ -343,7 +350,7 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
             }
             craftSlots.checkChanges = true;
             slotChangedCraftingGrid(player.level(), player);
-            container.setDataChanged(ITravelersBackpackContainer.CRAFTING_INVENTORY_DATA);
+            wrapper.setDataChanged(ITravelersBackpackContainer.CRAFTING_INVENTORY_DATA);
         }
         craftSlots.checkChanges = true;
         return resultSlots.getRecipeUsed() == null ? ItemStack.EMPTY : outputCopy;
@@ -389,7 +396,7 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
     @Override
     public void clicked(int slotId, int dragType, ClickType clickType, Player player)
     {
-        if(container.getSlotManager().isSelectorActive(SlotManager.UNSORTABLE) || container.getSlotManager().isSelectorActive(SlotManager.MEMORY))
+        if(wrapper.getSlotManager().isSelectorActive(SlotManager.UNSORTABLE) || wrapper.getSlotManager().isSelectorActive(SlotManager.MEMORY))
         {
             return;
         }
@@ -399,27 +406,27 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
     @Override
     public void removed(Player player)
     {
-        if(container.getScreenID() != Reference.BLOCK_ENTITY_SCREEN_ID)
+        if(wrapper.getScreenID() != Reference.BLOCK_ENTITY_SCREEN_ID)
         {
-            this.container.setDataChanged(ITravelersBackpackContainer.ALL_DATA);
+            this.wrapper.setDataChanged(ITravelersBackpackContainer.ALL_DATA);
         }
 
-        if(container.getScreenID() == Reference.BLOCK_ENTITY_SCREEN_ID)
+        if(wrapper.getScreenID() == Reference.BLOCK_ENTITY_SCREEN_ID)
         {
-            if(container.getSlotManager().isSelectorActive(SlotManager.UNSORTABLE) || container.getSlotManager().isSelectorActive(SlotManager.MEMORY)) container.getSlotManager().setChanged();
+            if(wrapper.getSlotManager().isSelectorActive(SlotManager.UNSORTABLE) || wrapper.getSlotManager().isSelectorActive(SlotManager.MEMORY)) wrapper.getSlotManager().setChanged();
 
-            this.container.setUsingPlayer(null);
+            this.wrapper.setUsingPlayer(null);
         }
 
-        if(container.getSlotManager().isSelectorActive(SlotManager.UNSORTABLE)) container.getSlotManager().setSelectorActive(SlotManager.UNSORTABLE, false);
-        if(container.getSlotManager().isSelectorActive(SlotManager.MEMORY)) container.getSlotManager().setSelectorActive(SlotManager.MEMORY, false);
+        if(wrapper.getSlotManager().isSelectorActive(SlotManager.UNSORTABLE)) wrapper.getSlotManager().setSelectorActive(SlotManager.UNSORTABLE, false);
+        if(wrapper.getSlotManager().isSelectorActive(SlotManager.MEMORY)) wrapper.getSlotManager().setSelectorActive(SlotManager.MEMORY, false);
 
-        clearSlotsAndPlaySound(player, this.container.getFluidSlotsHandler(), 4);
-        shiftTools(this.container);
+        clearSlotsAndPlaySound(player, this.wrapper.getFluidSlotsHandler(), 4);
+        shiftTools(this.wrapper);
 
         if(!TravelersBackpackConfig.craftingSavesItems)
         {
-            clearSlotsAndPlaySound(player, this.container.getCraftingGridHandler(), 9);
+            clearSlotsAndPlaySound(player, this.wrapper.getCraftingGridHandler(), 9);
         }
         else
         {
@@ -476,22 +483,22 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
         player.level().playSound(player, player.blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0F, (1.0F + (player.level().getRandom().nextFloat() - player.level().getRandom().nextFloat()) * 0.2F) * 0.7F);
     }
 
-    public void shiftTools(ITravelersBackpackContainer container)
+    public void shiftTools(BackpackWrapper wrapper)
     {
         boolean foundEmptySlot = false;
         boolean needsShifting = false;
 
-        for(int i = 0; i < container.getToolSlotsHandler().getSlots(); i++)
+        for(int i = 0; i < wrapper.getToolSlotsHandler().getSlots(); i++)
         {
             if(foundEmptySlot)
             {
-                if(!container.getToolSlotsHandler().getStackInSlot(i).isEmpty())
+                if(!wrapper.getToolSlotsHandler().getStackInSlot(i).isEmpty())
                 {
                     needsShifting = true;
                 }
             }
 
-            if(container.getToolSlotsHandler().getStackInSlot(i).isEmpty() && !foundEmptySlot)
+            if(wrapper.getToolSlotsHandler().getStackInSlot(i).isEmpty() && !foundEmptySlot)
             {
                 foundEmptySlot = true;
             }
@@ -499,25 +506,25 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
 
         if(needsShifting)
         {
-            NonNullList<ItemStack> tools = NonNullList.withSize(container.getToolSlotsHandler().getSlots(), ItemStack.EMPTY);
+            NonNullList<ItemStack> tools = NonNullList.withSize(wrapper.getToolSlotsHandler().getSlots(), ItemStack.EMPTY);
             int j = 0;
 
-            for(int i = 0; i < container.getToolSlotsHandler().getSlots(); i++)
+            for(int i = 0; i < wrapper.getToolSlotsHandler().getSlots(); i++)
             {
-                if(!container.getToolSlotsHandler().getStackInSlot(i).isEmpty())
+                if(!wrapper.getToolSlotsHandler().getStackInSlot(i).isEmpty())
                 {
-                    tools.set(j, container.getToolSlotsHandler().getStackInSlot(i));
+                    tools.set(j, wrapper.getToolSlotsHandler().getStackInSlot(i));
                     j++;
                 }
             }
 
             j = 0;
 
-            for(int i = 0; i < container.getToolSlotsHandler().getSlots(); i++)
+            for(int i = 0; i < wrapper.getToolSlotsHandler().getSlots(); i++)
             {
                 if(!tools.isEmpty())
                 {
-                    container.getToolSlotsHandler().setStackInSlot(i, tools.get(j));
+                    wrapper.getToolSlotsHandler().setStackInSlot(i, tools.get(j));
                     j++;
                 }
             }
@@ -529,7 +536,7 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
     {
         boolean playSound = false;
 
-        for(int i = 0; i < container.getCraftingGridHandler().getSlots(); i++)
+        for(int i = 0; i < wrapper.getCraftingGridHandler().getSlots(); i++)
         {
             boolean flag = clearCraftingGridSlot(player, i);
             if(flag) playSound = true;
@@ -543,22 +550,22 @@ public class TravelersBackpackBaseMenu extends AbstractContainerMenu
 
     public boolean clearCraftingGridSlot(Player player, int index)
     {
-        if(!BackpackSlotItemHandler.isItemValid(container.getCraftingGridHandler().getStackInSlot(index)))
+        if(!BackpackSlotItemHandler.isItemValid(wrapper.getCraftingGridHandler().getStackInSlot(index)))
         {
             if(player == null) return false;
 
             if(!player.isAlive() || (player instanceof ServerPlayer serverPlayer && serverPlayer.hasDisconnected()))
             {
-                ItemStack stack = container.getCraftingGridHandler().getStackInSlot(index).copy();
-                container.getCraftingGridHandler().setStackInSlot(index, ItemStack.EMPTY);
+                ItemStack stack = wrapper.getCraftingGridHandler().getStackInSlot(index).copy();
+                wrapper.getCraftingGridHandler().setStackInSlot(index, ItemStack.EMPTY);
 
                 player.drop(stack, false);
                 return false;
             }
             else
             {
-                ItemStack stack = container.getCraftingGridHandler().getStackInSlot(index);
-                container.getCraftingGridHandler().setStackInSlot(index, ItemStack.EMPTY);
+                ItemStack stack = wrapper.getCraftingGridHandler().getStackInSlot(index);
+                wrapper.getCraftingGridHandler().setStackInSlot(index, ItemStack.EMPTY);
 
                 player.getInventory().placeItemBackInInventory(stack);
                 return true;

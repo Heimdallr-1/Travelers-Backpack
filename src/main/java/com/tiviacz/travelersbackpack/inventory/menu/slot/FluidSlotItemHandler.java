@@ -1,5 +1,6 @@
 package com.tiviacz.travelersbackpack.inventory.menu.slot;
 
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.items.SlotItemHandler;
@@ -7,13 +8,13 @@ import net.minecraftforge.items.SlotItemHandler;
 public class FluidSlotItemHandler extends SlotItemHandler
 {
     private final int index;
-    private final ITravelersBackpackContainer container;
+    private final BackpackWrapper wrapper;
 
-    public FluidSlotItemHandler(ITravelersBackpackContainer container, int index, int xPosition, int yPosition)
+    public FluidSlotItemHandler(BackpackWrapper wrapper, int index, int xPosition, int yPosition)
     {
-        super(container.getFluidSlotsHandler(), index, xPosition, yPosition);
+        super(wrapper.getFluidSlotsHandler(), index, xPosition, yPosition);
         this.index = index;
-        this.container = container;
+        this.wrapper = wrapper;
 
         //0 - left in
         //1 - left out
@@ -24,7 +25,7 @@ public class FluidSlotItemHandler extends SlotItemHandler
     @Override
     public boolean mayPickup(Player playerIn)
     {
-        if(container.getRows() <= 4)
+        if(wrapper.getRows() <= 4)
         {
             if(index == 1 || index == 3)
             {
@@ -37,7 +38,7 @@ public class FluidSlotItemHandler extends SlotItemHandler
     @Override
     public boolean isActive()
     {
-        if(container.getRows() <= 4)
+        if(wrapper.getRows() <= 4)
         {
             if(index == 1 || index == 3)
             {
@@ -51,6 +52,6 @@ public class FluidSlotItemHandler extends SlotItemHandler
     public void setChanged()
     {
         super.setChanged();
-        container.updateTankSlots();
+        wrapper.updateTankSlots();
     }
 }

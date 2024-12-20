@@ -5,7 +5,7 @@ import com.tiviacz.travelersbackpack.capability.CapabilityUtils;
 import com.tiviacz.travelersbackpack.init.ModBlocks;
 import com.tiviacz.travelersbackpack.init.ModItems;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
-import com.tiviacz.travelersbackpack.inventory.TravelersBackpackContainer;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.util.BackpackUtils;
 import com.tiviacz.travelersbackpack.util.TimeUtils;
 import net.minecraft.core.BlockPos;
@@ -185,7 +185,7 @@ public class BackpackAbilities
         }
         else //TILE ABILITIES
         {
-            Item item = blockEntity.getItemStack().getItem();
+            Item item = blockEntity.getWrapper().getItemStack().getItem();
 
             if(item == ModItems.CACTUS_TRAVELERS_BACKPACK.get())
             {
@@ -228,7 +228,7 @@ public class BackpackAbilities
 
     public void animateTick(TravelersBackpackBlockEntity blockEntity, BlockState stateIn, Level level, BlockPos pos, RandomSource rand)
     {
-        if(blockEntity != null && blockEntity.getAbilityValue())
+        if(blockEntity != null && blockEntity.getWrapper().getAbilityValue())
         {
             Block block = stateIn.getBlock();
 
@@ -331,11 +331,11 @@ public class BackpackAbilities
 
     public void spongeAbility(TravelersBackpackBlockEntity blockEntity)
     {
-        if(!blockEntity.getLeftTank().isEmpty() && !blockEntity.getRightTank().isEmpty())
+        if(!blockEntity.getWrapper().getLeftTank().isEmpty() && !blockEntity.getWrapper().getRightTank().isEmpty())
         {
-            if(blockEntity.getLeftTank().getFluid().getFluid().isSame(Fluids.WATER) && blockEntity.getRightTank().getFluid().getFluid().isSame(Fluids.WATER))
+            if(blockEntity.getWrapper().getLeftTank().getFluid().getFluid().isSame(Fluids.WATER) && blockEntity.getWrapper().getRightTank().getFluid().getFluid().isSame(Fluids.WATER))
             {
-                if(blockEntity.getLeftTank().getFluidAmount() == blockEntity.getLeftTank().getCapacity() && blockEntity.getRightTank().getFluidAmount() == blockEntity.getRightTank().getCapacity())
+                if(blockEntity.getWrapper().getLeftTank().getFluidAmount() == blockEntity.getWrapper().getLeftTank().getCapacity() && blockEntity.getWrapper().getRightTank().getFluidAmount() == blockEntity.getWrapper().getRightTank().getCapacity())
                 {
                     float f = blockEntity.getLevel().random.nextFloat() * (float) Math.PI * 2.0F;
                     float f1 = blockEntity.getLevel().random.nextFloat() * 0.5F + 0.5F;
@@ -352,7 +352,7 @@ public class BackpackAbilities
 
     public void cakeAbility(Player player)
     {
-        TravelersBackpackContainer container = CapabilityUtils.getBackpackInv(player);
+        BackpackWrapper container = CapabilityUtils.getBackpackWrapper(player);
 
         if(container.getLastTime() <= 0)
         {
@@ -384,7 +384,7 @@ public class BackpackAbilities
 
     public void chickenAbility(Player player, boolean firstSwitch)
     {
-        TravelersBackpackContainer container = CapabilityUtils.getBackpackInv(player);
+        BackpackWrapper container = CapabilityUtils.getBackpackWrapper(player);
 
         if(firstSwitch)
         {
@@ -416,8 +416,8 @@ public class BackpackAbilities
     {
         if(player == null && blockEntity != null)
         {
-            FluidTank leftTank = blockEntity.getLeftTank();
-            FluidTank rightTank = blockEntity.getRightTank();
+            FluidTank leftTank = blockEntity.getWrapper().getLeftTank();
+            FluidTank rightTank = blockEntity.getWrapper().getRightTank();
 
             int drops = 0;
 
@@ -430,9 +430,9 @@ public class BackpackAbilities
 
             if(!blockEntity.getLevel().isClientSide)
             {
-                if(blockEntity.getLastTime() <= 0 && drops > 0)
+                if(blockEntity.getWrapper().getLastTime() <= 0 && drops > 0)
                 {
-                    blockEntity.setLastTime(5);
+                    blockEntity.getWrapper().setLastTime(5);
 
                     if(leftTank.isEmpty() || leftTank.getFluid().isFluidEqual(water))
                     {
@@ -444,13 +444,13 @@ public class BackpackAbilities
                         rightTank.fill(water, IFluidHandler.FluidAction.EXECUTE);
                     }
 
-                    blockEntity.setDataChanged(ITravelersBackpackContainer.TANKS_DATA);
+                    blockEntity.getWrapper().setDataChanged(ITravelersBackpackContainer.TANKS_DATA);
                 }
             }
         }
         else if(player != null && blockEntity == null)
         {
-            TravelersBackpackContainer container = CapabilityUtils.getBackpackInv(player);
+            BackpackWrapper container = CapabilityUtils.getBackpackWrapper(player);
 
             FluidTank leftTank = container.getLeftTank();
             FluidTank rightTank = container.getRightTank();
@@ -469,7 +469,7 @@ public class BackpackAbilities
 
             FluidStack water = new FluidStack(Fluids.WATER, drops);
 
-            if(!container.level().isClientSide)
+            if(!player.level().isClientSide)
             {
                 if(container.getLastTime() <= 0 && drops > 0)
                 {
@@ -493,11 +493,11 @@ public class BackpackAbilities
 
     public static void melonAbility(TravelersBackpackBlockEntity blockEntity)
     {
-        if(blockEntity.getAbilityValue() && blockEntity.getLastTime() <= 0)
+        if(blockEntity.getWrapper().getAbilityValue() && blockEntity.getWrapper().getLastTime() <= 0)
         {
             Block.popResource(blockEntity.getLevel(), blockEntity.getBlockPos(), new ItemStack(Items.MELON_SLICE, blockEntity.getLevel().random.nextInt(0, 3)));
-            blockEntity.setLastTime(TimeUtils.randomTime(blockEntity.getLevel().random, 120, 480));
-            blockEntity.setDataChanged();
+            blockEntity.getWrapper().setLastTime(TimeUtils.randomTime(blockEntity.getLevel().random, 120, 480));
+            blockEntity.getWrapper().setDataChanged();
         }
     }
 
@@ -513,7 +513,7 @@ public class BackpackAbilities
     {
         if(event.getEntity() instanceof Player player)
         {
-            TravelersBackpackContainer container = CapabilityUtils.getBackpackInv(player);
+            BackpackWrapper container = CapabilityUtils.getBackpackWrapper(player);
 
             if(player.isDeadOrDying() && container != null && container.getItemStack().getItem() == ModItems.CREEPER_TRAVELERS_BACKPACK.get() && container.getAbilityValue() && container.getLastTime() <= 0)
             {
@@ -668,7 +668,7 @@ public class BackpackAbilities
 
     public void cowAbility(Player player)
     {
-        if(!player.getActiveEffects().isEmpty() && CapabilityUtils.getBackpackInv(player).getLastTime() <= 0)
+        if(!player.getActiveEffects().isEmpty() && CapabilityUtils.getBackpackWrapper(player).getLastTime() <= 0)
         {
             player.curePotionEffects(new ItemStack(Items.MILK_BUCKET));
 
@@ -678,8 +678,8 @@ public class BackpackAbilities
             }
             player.level().playSound(null, player.blockPosition(), SoundEvents.HONEYCOMB_WAX_ON, SoundSource.PLAYERS, 1.0F, player.getRandom().nextFloat() * 0.1F + 0.9F);
 
-            CapabilityUtils.getBackpackInv(player).setLastTime(TimeUtils.randomTime(player.level().random, 450, 600));
-            CapabilityUtils.getBackpackInv(player).setDataChanged(ITravelersBackpackContainer.LAST_TIME_DATA);
+            CapabilityUtils.getBackpackWrapper(player).setLastTime(TimeUtils.randomTime(player.level().random, 450, 600));
+            CapabilityUtils.getBackpackWrapper(player).setDataChanged(ITravelersBackpackContainer.LAST_TIME_DATA);
         }
     }
 
@@ -701,7 +701,7 @@ public class BackpackAbilities
 
     public boolean checkBackpack(Player player, Item item)
     {
-        return CapabilityUtils.isWearingBackpack(player) && CapabilityUtils.getBackpackInv(player).getItemStack().getItem() == item && CapabilityUtils.getBackpackInv(player).getAbilityValue();
+        return CapabilityUtils.isWearingBackpack(player) && CapabilityUtils.getBackpackWrapper(player).getItemStack().getItem() == item && CapabilityUtils.getBackpackWrapper(player).getAbilityValue();
     }
 
     public void addTimedMobEffect(Player player, MobEffect effect, int minDuration, int maxDuration, int amplifier, boolean ambient, boolean showParticle, boolean showIcon)

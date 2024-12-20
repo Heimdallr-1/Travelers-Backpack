@@ -1,5 +1,6 @@
 package com.tiviacz.travelersbackpack.inventory.menu.slot;
 
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.CraftingContainerImproved;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import net.minecraft.core.NonNullList;
@@ -15,25 +16,25 @@ import net.minecraftforge.event.ForgeEventFactory;
 public class ResultSlotExt extends ResultSlot
 {
     protected final ResultContainer inv;
-    protected final ITravelersBackpackContainer container;
+    protected final BackpackWrapper wrapper;
 
-    public ResultSlotExt(ITravelersBackpackContainer container, Player player, CraftingContainerImproved matrix, ResultContainer inv, int slotIndex, int xPosition, int yPosition)
+    public ResultSlotExt(BackpackWrapper wrapper, Player player, CraftingContainerImproved matrix, ResultContainer inv, int slotIndex, int xPosition, int yPosition)
     {
         super(player, matrix, inv, slotIndex, xPosition, yPosition);
         this.inv = inv;
-        this.container = container;
+        this.wrapper = wrapper;
     }
 
     @Override
     public boolean mayPickup(Player player)
     {
-        return container.getSettingsManager().hasCraftingGrid();
+        return wrapper.getSettingsManager().hasCraftingGrid();
     }
 
     @Override
     public boolean isActive()
     {
-        return container.getSettingsManager().hasCraftingGrid() && container.getSettingsManager().showCraftingGrid();
+        return wrapper.getSettingsManager().hasCraftingGrid() && wrapper.getSettingsManager().showCraftingGrid();
     }
 
     @Override

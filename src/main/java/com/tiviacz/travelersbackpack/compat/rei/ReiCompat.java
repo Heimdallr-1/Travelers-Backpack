@@ -74,7 +74,7 @@ public class ReiCompat implements REIServerPlugin
         @Override
         public IntStream getInputStackSlotIds(MenuInfoContext<TravelersBackpackBaseMenu, ?, SimpleGridMenuDisplay> context)
         {
-            int firstCraftSlot = context.getMenu().container.getCombinedHandler().getSlots() - 8;
+            int firstCraftSlot = context.getMenu().getWrapper().getCombinedHandler().getSlots() - 8;
             return IntStream.range(firstCraftSlot, firstCraftSlot + 9);
         }
 
@@ -84,15 +84,15 @@ public class ReiCompat implements REIServerPlugin
             List<SlotAccessor> list = new ArrayList<>();
 
             //Backpack Inv
-            for(int i = 1; i <= context.getMenu().container.getHandler().getSlots(); i++)
+            for(int i = 1; i <= context.getMenu().getWrapper().getHandler().getSlots(); i++)
             {
                 list.add(SlotAccessor.fromSlot(context.getMenu().getSlot(i)));
             }
 
             //Player Inv
-            for(int i = context.getMenu().container.getCombinedHandler().getSlots() + 1; i < context.getMenu().container.getCombinedHandler().getSlots() + 1 + Inventory.INVENTORY_SIZE; i++)
+            for(int i = context.getMenu().getWrapper().getCombinedHandler().getSlots() + 1; i < context.getMenu().getWrapper().getCombinedHandler().getSlots() + 1 + Inventory.INVENTORY_SIZE; i++)
             {
-                if(context.getMenu().container.getScreenID() == Reference.ITEM_SCREEN_ID && context.getMenu().getSlot(i) instanceof DisabledSlot) continue;
+                if(context.getMenu().getWrapper().getScreenID() == Reference.ITEM_SCREEN_ID && context.getMenu().getSlot(i) instanceof DisabledSlot) continue;
 
                 list.add(SlotAccessor.fromSlot(context.getMenu().getSlot(i)));
             }
@@ -102,15 +102,15 @@ public class ReiCompat implements REIServerPlugin
         @Override
         public void validate(MenuInfoContext<TravelersBackpackBaseMenu, ?, SimpleGridMenuDisplay> context) throws MenuTransferException
         {
-            if(!context.getMenu().container.getSettingsManager().hasCraftingGrid())
+            if(!context.getMenu().getWrapper().getSettingsManager().hasCraftingGrid())
             {
                 throw new MenuTransferException(Component.translatable("error.rei.no.handlers.applicable"));
             }
             else
             {
                 //Open Tab
-                context.getMenu().container.getSettingsManager().set(SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1);
-                TravelersBackpack.NETWORK.sendToServer(new ServerboundSettingsPacket(context.getMenu().container.getScreenID(), SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1));
+                context.getMenu().getWrapper().getSettingsManager().set(SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1);
+                TravelersBackpack.NETWORK.sendToServer(new ServerboundSettingsPacket(context.getMenu().getWrapper().getScreenID(), SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1));
             }
             SimpleGridMenuInfo.super.validate(context);
         }

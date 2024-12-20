@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 public class SettingsManager
 {
-    private final ITravelersBackpackContainer container;
+    private final BackpackWrapper wrapper;
     private byte[] craftingSettings = new byte[]{(byte)(TravelersBackpackConfig.craftingUpgradeByDefault ? 1 : 0), 0, 1};
     private byte[] toolSlotsSettings = new byte[] {0};
 
@@ -24,9 +24,9 @@ public class SettingsManager
     public static final String CRAFTING_SETTINGS = "CraftingSettings";
     public static final String TOOL_SLOTS_SETTINGS = "ToolSlotsSettings";
 
-    public SettingsManager(ITravelersBackpackContainer container)
+    public SettingsManager(BackpackWrapper wrapper)
     {
-        this.container = container;
+        this.wrapper = wrapper;
     }
 
     public boolean hasCraftingGrid()
@@ -87,13 +87,13 @@ public class SettingsManager
 
     public void setChanged()
     {
-        if(container.getScreenID() != Reference.BLOCK_ENTITY_SCREEN_ID)
+        if(wrapper.getScreenID() != Reference.BLOCK_ENTITY_SCREEN_ID)
         {
-            container.setDataChanged(ITravelersBackpackContainer.SETTINGS_DATA);
+            wrapper.setDataChanged(ITravelersBackpackContainer.SETTINGS_DATA);
         }
         else
         {
-            container.setDataChanged();
+            wrapper.setDataChanged();
         }
     }
 

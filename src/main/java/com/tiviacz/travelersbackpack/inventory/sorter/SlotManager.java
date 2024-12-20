@@ -1,6 +1,7 @@
 package com.tiviacz.travelersbackpack.inventory.sorter;
 
 import com.mojang.datafixers.util.Pair;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import com.tiviacz.travelersbackpack.util.Reference;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class SlotManager
 {
-    protected final ITravelersBackpackContainer container;
+    protected final BackpackWrapper wrapper;
     protected List<Integer> unsortableSlots = new ArrayList<>();
     protected List<Pair<Integer, ItemStack>> memorySlots = new ArrayList<>();
     protected boolean isUnsortableActive = false;
@@ -28,9 +29,9 @@ public class SlotManager
     public static final byte UNSORTABLE = 0;
     public static final byte MEMORY = 1;
 
-    public SlotManager(ITravelersBackpackContainer container)
+    public SlotManager(BackpackWrapper wrapper)
     {
-        this.container = container;
+        this.wrapper = wrapper;
     }
 
     public List<Integer> getUnsortableSlots()
@@ -100,7 +101,7 @@ public class SlotManager
     {
         if(isSelectorActive(MEMORY))
         {
-            if(slot <= container.getHandler().getSlots() - 1)
+            if(slot <= wrapper.getHandler().getSlots() - 1)
             {
                 if(isSlot(MEMORY, slot))
                 {
@@ -118,7 +119,7 @@ public class SlotManager
     {
         if(isSelectorActive(UNSORTABLE))
         {
-            if(slot <= container.getHandler().getSlots() - 1)
+            if(slot <= wrapper.getHandler().getSlots() - 1)
             {
                 if(isSlot(UNSORTABLE, slot))
                 {
@@ -142,13 +143,13 @@ public class SlotManager
 
     public void setChanged()
     {
-        if(container.getScreenID() != Reference.BLOCK_ENTITY_SCREEN_ID)
+        if(wrapper.getScreenID() != Reference.BLOCK_ENTITY_SCREEN_ID)
         {
-            container.setDataChanged(ITravelersBackpackContainer.SLOT_DATA);
+            wrapper.setDataChanged(ITravelersBackpackContainer.SLOT_DATA);
         }
         else
         {
-            container.setDataChanged();
+            wrapper.setDataChanged();
         }
     }
 
@@ -205,7 +206,7 @@ public class SlotManager
             CompoundTag itemTag = tagList.getCompound(i);
             int slot = itemTag.getInt("Slot");
 
-            if(slot <= container.getHandler().getSlots() - 1)
+            if(slot <= wrapper.getHandler().getSlots() - 1)
             {
                 Pair<Integer, ItemStack> pair = Pair.of(slot, ItemStack.of(itemTag));
                 pairs.add(pair);

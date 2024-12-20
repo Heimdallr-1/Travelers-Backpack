@@ -5,6 +5,7 @@ import com.tiviacz.travelersbackpack.capability.CapabilityUtils;
 import com.tiviacz.travelersbackpack.compat.tetra.TetraCompatibility;
 import com.tiviacz.travelersbackpack.config.TravelersBackpackConfig;
 import com.tiviacz.travelersbackpack.init.ModTags;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import com.tiviacz.travelersbackpack.items.HoseItem;
 import com.tiviacz.travelersbackpack.util.Reference;
@@ -19,21 +20,21 @@ import java.util.List;
 public class ToolSlotItemHandler extends SlotItemHandler
 {
     private final Player player;
-    private final ITravelersBackpackContainer container;
+    private final BackpackWrapper wrapper;
     public static final List<Item> TOOL_SLOTS_ACCEPTABLE_ITEMS = new ArrayList<>();
 
-    public ToolSlotItemHandler(Player player, ITravelersBackpackContainer container, int index, int xPosition, int yPosition)
+    public ToolSlotItemHandler(Player player, BackpackWrapper wrapper, int index, int xPosition, int yPosition)
     {
-        super(container.getToolSlotsHandler(), index, xPosition, yPosition);
+        super(wrapper.getToolSlotsHandler(), index, xPosition, yPosition);
 
         this.player = player;
-        this.container = container;
+        this.wrapper = wrapper;
     }
 
     @Override
     public boolean isActive()
     {
-        return container.getSettingsManager().showToolSlots();
+        return wrapper.getSettingsManager().showToolSlots();
     }
 
     @Override
@@ -90,7 +91,7 @@ public class ToolSlotItemHandler extends SlotItemHandler
     {
         super.setChanged();
 
-        if(container.getScreenID() == Reference.WEARABLE_SCREEN_ID)
+        if(wrapper.getScreenID() == Reference.WEARABLE_SCREEN_ID)
         {
             CapabilityUtils.synchronise(this.player);
             CapabilityUtils.synchroniseToOthers(this.player);

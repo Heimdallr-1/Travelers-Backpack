@@ -28,7 +28,7 @@ public class TravelersBackpackBlockEntityRenderer implements BlockEntityRenderer
         poseStack.mulPose(Axis.YP.rotationDegrees(90.0F * direction.get2DDataValue()));
         poseStack.scale((float) 14 / 18, (float) 10 / 13, (float) 7 / 9);
         poseStack.translate(0.0D, 0.016D, 0.0D);
-        BackpackBlockModel.BLOCK_MODEL.render(blockEntity, poseStack, buffer, combinedLightIn, combinedOverlayIn);
+        BackpackBlockModel.BLOCK_MODEL.render(blockEntity.getWrapper(), poseStack, buffer, combinedLightIn, combinedOverlayIn);
         poseStack.popPose();
     }
 

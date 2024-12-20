@@ -2,6 +2,7 @@ package com.tiviacz.travelersbackpack.items;
 
 import com.tiviacz.travelersbackpack.config.TravelersBackpackConfig;
 import com.tiviacz.travelersbackpack.init.ModItems;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import com.tiviacz.travelersbackpack.inventory.Tiers;
 import net.minecraft.ChatFormatting;
@@ -82,7 +83,7 @@ public class UpgradeItem extends Item
             () -> ModItems.DIAMOND_TIER_UPGRADE.get(),
             () -> ModItems.NETHERITE_TIER_UPGRADE.get());
 
-    public static NonNullList<ItemStack> getUpgrades(ITravelersBackpackContainer container)
+    public static NonNullList<ItemStack> getUpgrades(BackpackWrapper container)
     {
         NonNullList<ItemStack> list = NonNullList.create();
 

@@ -67,15 +67,15 @@ public class EmiCompat implements EmiPlugin
             List<Slot> list = new ArrayList<>();
 
             //Backpack Inv
-            for(int i = 1; i <= handler.container.getHandler().getSlots(); i++)
+            for(int i = 1; i <= handler.getWrapper().getHandler().getSlots(); i++)
             {
                 list.add(handler.getSlot(i));
             }
 
             //Player Inv
-            for(int i = handler.container.getCombinedHandler().getSlots(); i < handler.container.getCombinedHandler().getSlots() + Inventory.INVENTORY_SIZE; i++)
+            for(int i = handler.getWrapper().getCombinedHandler().getSlots(); i < handler.getWrapper().getCombinedHandler().getSlots() + Inventory.INVENTORY_SIZE; i++)
             {
-                if(handler.container.getScreenID() == Reference.ITEM_SCREEN_ID && handler.getSlot(i) instanceof DisabledSlot) continue;
+                if(handler.getWrapper().getScreenID() == Reference.ITEM_SCREEN_ID && handler.getSlot(i) instanceof DisabledSlot) continue;
 
                 list.add(handler.getSlot(i));
             }
@@ -86,7 +86,7 @@ public class EmiCompat implements EmiPlugin
         public List<Slot> getCraftingSlots(T handler)
         {
             List<Slot> list = new ArrayList<>();
-            int firstCraftSlot = handler.container.getCombinedHandler().getSlots() - 8;
+            int firstCraftSlot = handler.getWrapper().getCombinedHandler().getSlots() - 8;
 
             for(int i = 0; i < 9; i++)
             {
@@ -98,8 +98,8 @@ public class EmiCompat implements EmiPlugin
         @Override
         public boolean craft(EmiRecipe recipe, EmiCraftContext<T> context)
         {
-            context.getScreenHandler().container.getSettingsManager().set(SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1);
-            TravelersBackpack.NETWORK.sendToServer(new ServerboundSettingsPacket(context.getScreenHandler().container.getScreenID(), SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1));
+            context.getScreenHandler().getWrapper().getSettingsManager().set(SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1);
+            TravelersBackpack.NETWORK.sendToServer(new ServerboundSettingsPacket(context.getScreenHandler().getWrapper().getScreenID(), SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1));
 
             return StandardRecipeHandler.super.craft(recipe, context);
         }
@@ -107,7 +107,7 @@ public class EmiCompat implements EmiPlugin
         @Override
         public boolean canCraft(EmiRecipe recipe, EmiCraftContext<T> context)
         {
-            return StandardRecipeHandler.super.canCraft(recipe, context) && context.getScreenHandler().container.getSettingsManager().hasCraftingGrid();
+            return StandardRecipeHandler.super.canCraft(recipe, context) && context.getScreenHandler().getWrapper().getSettingsManager().hasCraftingGrid();
         }
 
         @Override

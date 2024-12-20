@@ -2,7 +2,7 @@ package com.tiviacz.travelersbackpack.network;
 
 import com.tiviacz.travelersbackpack.capability.CapabilityUtils;
 import com.tiviacz.travelersbackpack.common.ServerActions;
-import com.tiviacz.travelersbackpack.inventory.TravelersBackpackContainer;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.util.Reference;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -71,7 +71,7 @@ public class ServerboundSpecialActionPacket
                 {
                     if(CapabilityUtils.isWearingBackpack(serverPlayer))
                     {
-                        TravelersBackpackContainer.openGUI(serverPlayer, CapabilityUtils.getWearingBackpack(serverPlayer), Reference.WEARABLE_SCREEN_ID);
+                        BackpackWrapper.openGUI(serverPlayer, CapabilityUtils.getWearingBackpack(serverPlayer), Reference.WEARABLE_SCREEN_ID);
                     }
                 }
 

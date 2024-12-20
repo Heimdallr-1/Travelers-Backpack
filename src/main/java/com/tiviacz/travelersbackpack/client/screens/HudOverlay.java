@@ -6,6 +6,7 @@ import com.tiviacz.travelersbackpack.TravelersBackpack;
 import com.tiviacz.travelersbackpack.capability.CapabilityUtils;
 import com.tiviacz.travelersbackpack.config.TravelersBackpackConfig;
 import com.tiviacz.travelersbackpack.handlers.ModClientEventHandler;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import com.tiviacz.travelersbackpack.items.HoseItem;
 import com.tiviacz.travelersbackpack.util.RenderUtils;
@@ -39,7 +40,7 @@ public class HudOverlay
         int textureX = 10;
         int textureY = 0;
 
-        ITravelersBackpackContainer inv = CapabilityUtils.getBackpackInv(player);
+        BackpackWrapper inv = CapabilityUtils.getBackpackWrapper(player);
 
         KeyMapping key = ModClientEventHandler.SWAP_TOOL;
         List<ItemStack> tools = getTools(inv.getToolSlotsHandler());

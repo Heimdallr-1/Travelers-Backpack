@@ -24,7 +24,7 @@ public class LootItemHasSleepingBagColorCondition implements LootItemCondition
     @Override
     public boolean test(LootContext lootContext)
     {
-        return lootContext.getParamOrNull(LootContextParams.BLOCK_ENTITY) instanceof TravelersBackpackBlockEntity blockEntity && blockEntity.hasSleepingBagColor();
+        return lootContext.getParamOrNull(LootContextParams.BLOCK_ENTITY) instanceof TravelersBackpackBlockEntity blockEntity && blockEntity.getWrapper().hasSleepingBagColor();
     }
 
     public static Builder hasSleepingBagColor()

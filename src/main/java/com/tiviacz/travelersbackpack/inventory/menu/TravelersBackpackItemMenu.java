@@ -3,7 +3,7 @@ package com.tiviacz.travelersbackpack.inventory.menu;
 import com.tiviacz.travelersbackpack.capability.CapabilityUtils;
 import com.tiviacz.travelersbackpack.init.ModMenuTypes;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
-import com.tiviacz.travelersbackpack.inventory.TravelersBackpackContainer;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.menu.slot.DisabledSlot;
 import com.tiviacz.travelersbackpack.items.TravelersBackpackItem;
 import com.tiviacz.travelersbackpack.util.Reference;
@@ -19,64 +19,39 @@ import java.util.Objects;
 
 public class TravelersBackpackItemMenu extends TravelersBackpackBaseMenu
 {
-    public TravelersBackpackItemMenu(int windowID, Inventory playerInventory, FriendlyByteBuf data)
-    {
-        this(windowID, playerInventory, createInventory(playerInventory, data));
+    public TravelersBackpackItemMenu(int windowID, Inventory playerInventory, FriendlyByteBuf data) {
+        this(windowID, playerInventory, createWrapper(playerInventory, data));
     }
 
-    public TravelersBackpackItemMenu(int windowID, Inventory playerInventory, ITravelersBackpackContainer container)
-    {
-        super(ModMenuTypes.TRAVELERS_BACKPACK_ITEM.get(), windowID, playerInventory, container);
+    public TravelersBackpackItemMenu(int windowID, Inventory playerInventory, BackpackWrapper wrapper) {
+        super(ModMenuTypes.TRAVELERS_BACKPACK_ITEM.get(), windowID, playerInventory, wrapper);
+        this.wrapper.addUser(playerInventory.player);
     }
 
-    private static TravelersBackpackContainer createInventory(final Inventory inventory, final FriendlyByteBuf data)
-    {
+    private static BackpackWrapper createWrapper(Inventory inventory, FriendlyByteBuf data) {
         Objects.requireNonNull(inventory, "playerInventory cannot be null");
         Objects.requireNonNull(data, "data cannot be null");
 
-        final ItemStack stack; //Get ItemStack from hand or capability to avoid sending a lot of information by packetBuffer
-        final byte screenID = data.readByte();
+        byte screenID = data.readByte();
+        int entityId = data.readInt();
+        ItemStack stack = data.readItem();
 
-        if(screenID == Reference.ITEM_SCREEN_ID)
-        {
-            stack = inventory.player.getItemBySlot(EquipmentSlot.MAINHAND);
+        if(screenID == Reference.WEARABLE_SCREEN_ID) {
+            if(entityId != -1) {
+                BackpackWrapper targetWrapper = CapabilityUtils.getBackpackWrapper((Player)inventory.player.level().getEntity(entityId));
+                targetWrapper.addUser(inventory.player);
+                return targetWrapper;
+            }
+            return CapabilityUtils.getBackpackWrapper(inventory.player);
+        } else {
+            return new BackpackWrapper(stack, screenID, inventory.player, inventory.player.level());
         }
-        else
-        {
-            if(data.writerIndex() == 5)
-            {
-                final int entityId = data.readInt();
-                stack = CapabilityUtils.getWearingBackpack((Player)inventory.player.level().getEntity(entityId));
-
-                if(stack.getItem() instanceof TravelersBackpackItem)
-                {
-                    return CapabilityUtils.getBackpackInv((Player)inventory.player.level().getEntity(entityId));
-                }
-            }
-            else
-            {
-                stack = CapabilityUtils.getWearingBackpack(inventory.player);
-            }
-        }
-
-        if(stack.getItem() instanceof TravelersBackpackItem)
-        {
-            if(screenID == Reference.WEARABLE_SCREEN_ID)
-            {
-                return CapabilityUtils.getBackpackInv(inventory.player);
-            }
-            else if(screenID == Reference.ITEM_SCREEN_ID)
-            {
-                return new TravelersBackpackContainer(stack, inventory.player, screenID);
-            }
-        }
-        throw new IllegalStateException("ItemStack is not correct! " + stack);
     }
 
     @Override
     public void clicked(int slotId, int dragType, ClickType clickType, Player player)
     {
-        if(container.getScreenID() == Reference.ITEM_SCREEN_ID && clickType == ClickType.SWAP)
+        if(wrapper.getScreenID() == Reference.ITEM_SCREEN_ID && clickType == ClickType.SWAP)
         {
             final ItemStack stack = player.getInventory().getItem(dragType);
             final ItemStack currentItem = player.getInventory().getSelected();
@@ -96,20 +71,37 @@ public class TravelersBackpackItemMenu extends TravelersBackpackBaseMenu
         {
             for(int x = 0; x < 9; x++)
             {
-                this.addSlot(new Slot(inventory, x + y * 9 + 9, 44 + x*18, (71 + this.container.getYOffset()) + y*18));
+                this.addSlot(new Slot(inventory, x + y * 9 + 9, 44 + x*18, (71 + this.wrapper.getYOffset()) + y*18));
             }
         }
 
         for(int x = 0; x < 9; x++)
         {
-            if(x == currentItemIndex && this.container.getScreenID() == Reference.ITEM_SCREEN_ID)
+            if(x == currentItemIndex && this.wrapper.getScreenID() == Reference.ITEM_SCREEN_ID)
             {
-                this.addSlot(new DisabledSlot(inventory, x, 44 + x*18, 129 + this.container.getYOffset()));
+                this.addSlot(new DisabledSlot(inventory, x, 44 + x*18, 129 + this.wrapper.getYOffset()));
             }
             else
             {
-                this.addSlot(new Slot(inventory, x, 44 + x*18, 129 + this.container.getYOffset()));
+                this.addSlot(new Slot(inventory, x, 44 + x*18, 129 + this.wrapper.getYOffset()));
             }
         }
+    }
+
+    @Override
+    public void removed(Player player) {
+        if(player.containerMenu instanceof TravelersBackpackBaseMenu && player.level().isClientSide) {
+            return;
+        }
+        this.wrapper.playersUsing.remove(player);
+        super.removed(player);
+    }
+
+    @Override
+    public boolean stillValid(Player player) {
+        if(getWrapper().getBackpackOwner() != null) {
+            return getWrapper().getBackpackOwner().isAlive() && CapabilityUtils.isWearingBackpack(getWrapper().getBackpackOwner());
+        }
+        return true;
     }
 }

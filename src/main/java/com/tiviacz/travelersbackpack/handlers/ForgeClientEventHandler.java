@@ -101,7 +101,7 @@ public class ForgeClientEventHandler
 
             while (ModClientEventHandler.ABILITY.consumeClick()) {
                 if (BackpackAbilities.ALLOWED_ABILITIES.contains(CapabilityUtils.getWearingBackpack(player).getItem())) {
-                    boolean ability = CapabilityUtils.getBackpackInv(player).getAbilityValue();
+                    boolean ability = CapabilityUtils.getBackpackWrapper(player).getAbilityValue();
                     TravelersBackpack.NETWORK.send(PacketDistributor.SERVER.noArg(), new ServerboundAbilitySliderPacket(Reference.WEARABLE_SCREEN_ID, !ability));
 
                     player.displayClientMessage(Component.translatable(ability ? "screen.travelersbackpack.ability_disabled" : "screen.travelersbackpack.ability_enabled"), true);

@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.tiviacz.travelersbackpack.blockentity.TravelersBackpackBlockEntity;
 import com.tiviacz.travelersbackpack.capability.CapabilityUtils;
+import com.tiviacz.travelersbackpack.inventory.TravelersBackpackContainer;
 import com.tiviacz.travelersbackpack.util.Reference;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -52,7 +53,7 @@ public class AccessBackpackCommand
 
         if(hasBackpack)
         {
-            NetworkHooks.openScreen(self, CapabilityUtils.getBackpackInv(serverPlayer), packetBuffer -> packetBuffer.writeByte(Reference.WEARABLE_SCREEN_ID).writeInt(serverPlayer.getId()));
+            NetworkHooks.openScreen(self, new TravelersBackpackContainer(CapabilityUtils.getWearingBackpack(serverPlayer), serverPlayer, Reference.WEARABLE_SCREEN_ID), packetBuffer -> packetBuffer.writeByte(Reference.WEARABLE_SCREEN_ID).writeInt(serverPlayer.getId()));
             source.sendSuccess(() -> Component.literal("Accessing backpack of " + serverPlayer.getDisplayName().getString()), true);
             return 1;
         }

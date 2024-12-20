@@ -2,49 +2,65 @@ package com.tiviacz.travelersbackpack.inventory.menu;
 
 import com.tiviacz.travelersbackpack.blockentity.TravelersBackpackBlockEntity;
 import com.tiviacz.travelersbackpack.init.ModMenuTypes;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.Objects;
 
-public class TravelersBackpackBlockEntityMenu extends TravelersBackpackBaseMenu
-{
-    public TravelersBackpackBlockEntityMenu(int windowID, Inventory inventory, FriendlyByteBuf data)
-    {
-        this(windowID, inventory, getBlockEntity(inventory, data));
+public class TravelersBackpackBlockEntityMenu extends TravelersBackpackBaseMenu {
+    private final ContainerLevelAccess access;
+    private final Block backpackBlock;
+    private final int infniteAccessUser;
+
+    public TravelersBackpackBlockEntityMenu(int windowID, Inventory inventory, FriendlyByteBuf data) {
+        this(windowID, inventory, isInfiniteAccess(data), getBlockEntity(inventory, data));
     }
 
-    public TravelersBackpackBlockEntityMenu(int windowID, Inventory inventory, ITravelersBackpackContainer container)
-    {
-        super(ModMenuTypes.TRAVELERS_BACKPACK_BLOCK_ENTITY.get(), windowID, inventory, container);
-
-        container.setUsingPlayer(inventory.player);
+    public TravelersBackpackBlockEntityMenu(int windowID, Inventory inventory, int entityId, BackpackWrapper wrapper) {
+        super(ModMenuTypes.TRAVELERS_BACKPACK_BLOCK_ENTITY.get(), windowID, inventory, wrapper);
+        this.access = ContainerLevelAccess.create(player.level(), getWrapper().getBackpackPos());
+        this.backpackBlock = player.level().getBlockState(getWrapper().getBackpackPos()).getBlock();
+        this.infniteAccessUser = entityId;
+        this.wrapper.addUser(inventory.player);
     }
 
-    private static TravelersBackpackBlockEntity getBlockEntity(final Inventory inventory, final FriendlyByteBuf data)
-    {
+    private static int isInfiniteAccess(FriendlyByteBuf data) {
+        return data.readInt();
+    }
+
+    private static BackpackWrapper getBlockEntity(Inventory inventory, FriendlyByteBuf data) {
         Objects.requireNonNull(inventory, "playerInventory cannot be null");
         Objects.requireNonNull(data, "data cannot be null");
 
-        final BlockEntity blockEntityAtPos = inventory.player.level().getBlockEntity(data.readBlockPos());
+        BlockPos pos = data.readBlockPos();
+        BlockEntity blockEntityAtPos = inventory.player.level().getBlockEntity(pos);
 
-        if(blockEntityAtPos instanceof TravelersBackpackBlockEntity blockEntity)
-        {
-            return blockEntity;
+        if(blockEntityAtPos instanceof TravelersBackpackBlockEntity backpackBlockEntity) {
+            backpackBlockEntity.getWrapper().addUser(inventory.player);
+            backpackBlockEntity.getWrapper().setBackpackPos(pos);
+            return backpackBlockEntity.getWrapper();
         }
         throw new IllegalStateException("Block Entity is not correct! " + blockEntityAtPos);
     }
 
     @Override
-    public boolean stillValid(Player player)
-    {
-        if(player.level().getBlockEntity(container.getPosition()) instanceof TravelersBackpackBlockEntity blockEntity)
-        {
-            return blockEntity.isUsableByPlayer(player);
+    public boolean stillValid(Player player) { //stillValid
+        return this.access.evaluate((level, blockPos) -> !level.getBlockState(blockPos).is(this.backpackBlock) ? false : player.getId() == this.infniteAccessUser || player.distanceToSqr((double)blockPos.getX() + (double)0.5F, (double)blockPos.getY() + (double)0.5F, (double)blockPos.getZ() + (double)0.5F) <= (double)64.0F, true);
+    }
+
+    @Override
+    public void removed(Player player) {
+        if(player.containerMenu instanceof TravelersBackpackBaseMenu && player.level().isClientSide) {
+            return;
         }
-        return false;
+        this.wrapper.playersUsing.remove(player);
+        super.removed(player);
     }
 }

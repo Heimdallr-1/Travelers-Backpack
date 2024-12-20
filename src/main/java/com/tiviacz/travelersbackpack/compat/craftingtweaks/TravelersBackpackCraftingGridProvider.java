@@ -40,7 +40,7 @@ public class TravelersBackpackCraftingGridProvider implements CraftingGridProvid
     {
         if(menu instanceof TravelersBackpackBaseMenu backpackMenu)
         {
-            builder.addGrid(backpackMenu.container.getCombinedHandler().getSlots() - 8, 9).setButtonAlignment(ButtonAlignment.RIGHT).hideAllTweakButtons();
+           // builder.addGrid(backpackMenu.container.getCombinedHandler().getSlots() - 8, 9).setButtonAlignment(ButtonAlignment.RIGHT).hideAllTweakButtons();
         }
     }
 }

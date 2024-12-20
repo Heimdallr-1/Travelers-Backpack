@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.tiviacz.travelersbackpack.blockentity.TravelersBackpackBlockEntity;
 import com.tiviacz.travelersbackpack.capability.CapabilityUtils;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -38,7 +39,7 @@ public class UnpackBackpackCommand
     {
         if(source.getLevel().getBlockEntity(blockPos) instanceof TravelersBackpackBlockEntity)
         {
-            ITravelersBackpackContainer inv = (TravelersBackpackBlockEntity)source.getLevel().getBlockEntity(blockPos);
+            BackpackWrapper inv = ((TravelersBackpackBlockEntity)source.getLevel().getBlockEntity(blockPos)).getWrapper();
             NonNullList<ItemStack> stacks = NonNullList.create();
 
             for(int i = 0; i < inv.getCombinedHandler().getSlots(); i++)

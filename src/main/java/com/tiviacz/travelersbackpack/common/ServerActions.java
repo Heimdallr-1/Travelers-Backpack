@@ -8,7 +8,7 @@ import com.tiviacz.travelersbackpack.fluids.EffectFluidRegistry;
 import com.tiviacz.travelersbackpack.init.ModBlocks;
 import com.tiviacz.travelersbackpack.init.ModItems;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
-import com.tiviacz.travelersbackpack.inventory.TravelersBackpackContainer;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.menu.TravelersBackpackBlockEntityMenu;
 import com.tiviacz.travelersbackpack.inventory.menu.TravelersBackpackItemMenu;
 import com.tiviacz.travelersbackpack.inventory.sorter.ContainerSorter;
@@ -34,7 +34,7 @@ public class ServerActions
 {
     public static void swapTool(Player player, double scrollDelta) {
         if (CapabilityUtils.isWearingBackpack(player)) {
-            ItemStackHandler inv = CapabilityUtils.getBackpackInv(player).getToolSlotsHandler();
+            ItemStackHandler inv = CapabilityUtils.getBackpackWrapper(player).getToolSlotsHandler();
             if (ContainerUtils.isEmpty(inv)) return;
 
             int toolSlots = inv.getSlots();
@@ -112,7 +112,7 @@ public class ServerActions
 
                 //Sync
                 CapabilityUtils.synchronise(player);
-                CapabilityUtils.synchroniseToOthers(player);
+               // CapabilityUtils.synchroniseToOthers(player);
             } else {
                 ((ServerPlayer)player).closeContainer();
                 player.sendSystemMessage(Component.translatable(Reference.OTHER_BACKPACK));
@@ -139,14 +139,14 @@ public class ServerActions
 
                 //Sync
                 CapabilityUtils.synchronise(player);
-                CapabilityUtils.synchroniseToOthers(player);
+                //CapabilityUtils.synchroniseToOthers(player);
             }
         }
     }
 
     public static void switchAbilitySlider(Player player, boolean sliderValue)
     {
-        TravelersBackpackContainer container = CapabilityUtils.getBackpackInv(player);
+        BackpackWrapper container = CapabilityUtils.getBackpackWrapper(player);
         container.setAbility(sliderValue);
         container.setDataChanged(ITravelersBackpackContainer.ABILITY_DATA, ITravelersBackpackContainer.TANKS_DATA);
 
@@ -165,8 +165,8 @@ public class ServerActions
     {
         if(player.level().getBlockEntity(pos) instanceof TravelersBackpackBlockEntity blockEntity)
         {
-            blockEntity.setAbility(sliderValue);
-            blockEntity.setDataChanged();
+            blockEntity.getWrapper().setAbility(sliderValue);
+            blockEntity.getWrapper().setDataChanged();
 
             blockEntity.getLevel().updateNeighborsAt(pos, blockEntity.getBlockState().getBlock());
 
@@ -181,9 +181,9 @@ public class ServerActions
     {
         if(screenID == Reference.BLOCK_ENTITY_SCREEN_ID && player.containerMenu instanceof TravelersBackpackBlockEntityMenu menu)
         {
-            if(player.level().getBlockEntity(menu.container.getPosition()) instanceof TravelersBackpackBlockEntity)
+            if(player.level().getBlockEntity(menu.getWrapper().getBackpackPos()) instanceof TravelersBackpackBlockEntity)
             {
-                ContainerSorter.selectSort(menu.container, player, button, shiftPressed);
+                //ContainerSorter.selectSort(menu.container, player, button, shiftPressed);
             }
         }
 
@@ -191,13 +191,13 @@ public class ServerActions
         {
             if(player.containerMenu instanceof TravelersBackpackItemMenu menu)
             {
-                ContainerSorter.selectSort(menu.container, player, button, shiftPressed);
+                //ContainerSorter.selectSort(menu.container, player, button, shiftPressed);
             }
         }
 
         else if(screenID == Reference.WEARABLE_SCREEN_ID)
         {
-            ContainerSorter.selectSort(CapabilityUtils.getBackpackInv(player), player, button, shiftPressed);
+           // ContainerSorter.selectSort(CapabilityUtils.getBackpackInv(player), player, button, shiftPressed);
         }
     }
 
@@ -206,14 +206,14 @@ public class ServerActions
         boolean visibility = (stack.hasTag() && stack.getTag().contains(ITravelersBackpackContainer.VISIBILITY)) ? stack.getTag().getBoolean(ITravelersBackpackContainer.VISIBILITY) : true;
         stack.getOrCreateTag().putBoolean(ITravelersBackpackContainer.VISIBILITY, !visibility);
         CapabilityUtils.synchronise(player);
-        CapabilityUtils.synchroniseToOthers(player);
+        //CapabilityUtils.synchroniseToOthers(player);
     }
 
     public static void toggleSleepingBag(Player player, BlockPos pos) {
         Level level = player.level();
 
         if (level.getBlockEntity(pos) instanceof TravelersBackpackBlockEntity blockEntity) {
-            if (!blockEntity.isSleepingBagDeployed()) {
+            if (!blockEntity.getWrapper().isSleepingBagDeployed()) {
                 if (!blockEntity.deploySleepingBag(level, pos)) {
                     player.sendSystemMessage(Component.translatable(Reference.DEPLOY));
                 }
@@ -230,9 +230,9 @@ public class ServerActions
     {
         ITravelersBackpackContainer container = null;
 
-        if(screenID == Reference.WEARABLE_SCREEN_ID) container = CapabilityUtils.getBackpackInv(player);
-        if(screenID == Reference.ITEM_SCREEN_ID) container = ((TravelersBackpackItemMenu)player.containerMenu).container;
-        if(screenID == Reference.BLOCK_ENTITY_SCREEN_ID) container = ((TravelersBackpackBlockEntityMenu)player.containerMenu).container;
+        //if(screenID == Reference.WEARABLE_SCREEN_ID) container = CapabilityUtils.getBackpackWrapper(player);
+        ///if(screenID == Reference.ITEM_SCREEN_ID) container = ((TravelersBackpackItemMenu)player.containerMenu).container;
+        //if(screenID == Reference.BLOCK_ENTITY_SCREEN_ID) container = ((TravelersBackpackBlockEntityMenu)player.containerMenu).container;
 
         if(container == null) return;
 

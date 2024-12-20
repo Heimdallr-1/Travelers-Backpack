@@ -3,6 +3,7 @@ package com.tiviacz.travelersbackpack.util;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -134,7 +135,7 @@ public class RenderUtils
             }
     };
 
-    public static void renderFluidSides(@Nullable ITravelersBackpackContainer inv, PoseStack poseStack, MultiBufferSource buffer, float height, FluidStack fluid, int brightness)
+    public static void renderFluidSides(@Nullable BackpackWrapper inv, PoseStack poseStack, MultiBufferSource buffer, float height, FluidStack fluid, int brightness)
     {
         Triple<Float, Float, Float> colorParts = getFluidVertexBufferColor(fluid);
         float r = colorParts.getLeft();
@@ -171,7 +172,7 @@ public class RenderUtils
         return height;
     }
 
-    public static void renderFluidInTank(@Nullable ITravelersBackpackContainer inv, FluidTank tank, PoseStack poseStack, MultiBufferSource buffer, int combinedLightIn, float x, float y, float z)
+    public static void renderFluidInTank(@Nullable BackpackWrapper inv, FluidTank tank, PoseStack poseStack, MultiBufferSource buffer, int combinedLightIn, float x, float y, float z)
     {
         poseStack.pushPose();
         poseStack.mulPose(Axis.ZP.rotationDegrees(180F));
@@ -186,14 +187,14 @@ public class RenderUtils
         poseStack.popPose();
     }
 
-    public static TextureAtlasSprite getFluidIcon(@Nullable ITravelersBackpackContainer inv, FluidStack fluidstack, Direction direction)
+    public static TextureAtlasSprite getFluidIcon(@Nullable BackpackWrapper inv, FluidStack fluidstack, Direction direction)
     {
         Block defaultBlock = Blocks.WATER;
         Block block = defaultBlock;
 
-        if(fluidstack.getFluid().getFluidType().getBlockForFluidState(Minecraft.getInstance().level, inv == null ? BlockPos.ZERO : inv.getPosition(), fluidstack.getFluid().defaultFluidState()) != null)
+        if(fluidstack.getFluid().getFluidType().getBlockForFluidState(Minecraft.getInstance().level, inv == null ? BlockPos.ZERO : inv.getBackpackPos(), fluidstack.getFluid().defaultFluidState()) != null)
         {
-            block = fluidstack.getFluid().getFluidType().getBlockForFluidState(Minecraft.getInstance().level, inv == null ? BlockPos.ZERO : inv.getPosition(), fluidstack.getFluid().defaultFluidState()).getBlock();
+            block = fluidstack.getFluid().getFluidType().getBlockForFluidState(Minecraft.getInstance().level, inv == null ? BlockPos.ZERO : inv.getBackpackPos(), fluidstack.getFluid().defaultFluidState()).getBlock();
         }
 
         if(direction == null)

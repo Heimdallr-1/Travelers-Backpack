@@ -4,7 +4,7 @@ import com.tiviacz.travelersbackpack.capability.CapabilityUtils;
 import com.tiviacz.travelersbackpack.common.ServerActions;
 import com.tiviacz.travelersbackpack.fluids.EffectFluidRegistry;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
-import com.tiviacz.travelersbackpack.inventory.TravelersBackpackContainer;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.util.Reference;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -89,7 +89,7 @@ public class HoseItem extends Item
                 return InteractionResultHolder.pass(stack);
             }
 
-            TravelersBackpackContainer inv = CapabilityUtils.getBackpackInv(player);
+            BackpackWrapper inv = CapabilityUtils.getBackpackInv(player);
             FluidTank tank = this.getSelectedFluidTank(stack, inv);
 
             if(getHoseMode(stack) == SUCK_MODE)
@@ -168,7 +168,7 @@ public class HoseItem extends Item
             }
 
             LazyOptional<IFluidHandler> fluidHandler = FluidUtil.getFluidHandler(level, pos, direction);
-            TravelersBackpackContainer inv = CapabilityUtils.getBackpackInv(player);
+            BackpackWrapper inv = CapabilityUtils.getBackpackInv(player);
             FluidTank tank = this.getSelectedFluidTank(stack, inv);
 
             if(getHoseMode(stack) == SUCK_MODE)
@@ -360,7 +360,7 @@ public class HoseItem extends Item
         {
             if(CapabilityUtils.isWearingBackpack(player))
             {
-                TravelersBackpackContainer inv = CapabilityUtils.getBackpackInv(player);
+                BackpackWrapper inv = CapabilityUtils.getBackpackInv(player);
                 FluidTank tank = this.getSelectedFluidTank(stack, inv);
 
                 if(getHoseMode(stack) == DRINK_MODE)
@@ -386,7 +386,7 @@ public class HoseItem extends Item
     {
         if(hand == InteractionHand.MAIN_HAND && getHoseMode(stack) == SUCK_MODE)
         {
-            TravelersBackpackContainer inv = CapabilityUtils.getBackpackInv(player);
+            BackpackWrapper inv = CapabilityUtils.getBackpackInv(player);
             FluidTank tank = this.getSelectedFluidTank(stack, inv);
             Fluid milk = ForgeRegistries.FLUIDS.getValue(new ResourceLocation("minecraft", "milk"));
 
@@ -441,7 +441,7 @@ public class HoseItem extends Item
         return 0;
     }
 
-    public FluidTank getSelectedFluidTank(ItemStack stack, TravelersBackpackContainer inv)
+    public FluidTank getSelectedFluidTank(ItemStack stack, BackpackWrapper inv)
     {
         return getHoseTank(stack) == 1 ? inv.getLeftTank() : inv.getRightTank();
     }

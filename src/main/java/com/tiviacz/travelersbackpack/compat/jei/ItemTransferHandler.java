@@ -28,8 +28,8 @@ public class ItemTransferHandler extends BasicRecipeTransferHandler<TravelersBac
     {
         if(doTransfer)
         {
-            container.container.getSettingsManager().set(SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1);
-            TravelersBackpack.NETWORK.sendToServer(new ServerboundSettingsPacket(container.container.getScreenID(), SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1));
+            container.getWrapper().getSettingsManager().set(SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1);
+            TravelersBackpack.NETWORK.sendToServer(new ServerboundSettingsPacket(container.getWrapper().getScreenID(), SettingsManager.CRAFTING, SettingsManager.SHOW_CRAFTING_GRID, (byte)1));
         }
         return super.transferRecipe(container, recipe, recipeSlotsView, player, maxTransfer, doTransfer);
     }

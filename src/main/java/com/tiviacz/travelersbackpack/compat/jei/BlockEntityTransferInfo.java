@@ -37,14 +37,14 @@ public class BlockEntityTransferInfo implements IRecipeTransferInfo<TravelersBac
     @Override
     public boolean canHandle(TravelersBackpackBlockEntityMenu container, CraftingRecipe recipe)
     {
-        return container.container.getSettingsManager().hasCraftingGrid();
+        return container.getWrapper().getSettingsManager().hasCraftingGrid();
     }
 
     @Override
     public List<Slot> getRecipeSlots(TravelersBackpackBlockEntityMenu container, CraftingRecipe recipe)
     {
         List<Slot> list = new ArrayList<>();
-        int firstCraftSlot = container.container.getCombinedHandler().getSlots() - 8;
+        int firstCraftSlot = container.getWrapper().getCombinedHandler().getSlots() - 8;
 
         for(int i = 0; i < 9; i++)
         {
@@ -60,13 +60,13 @@ public class BlockEntityTransferInfo implements IRecipeTransferInfo<TravelersBac
         List<Slot> list = new ArrayList<>();
 
         //Backpack Inv
-        for(int i = 1; i <= container.container.getHandler().getSlots(); i++)
+        for(int i = 1; i <= container.getWrapper().getHandler().getSlots(); i++)
         {
             list.add(container.getSlot(i));
         }
 
         //Player Inv
-        for(int i = container.container.getCombinedHandler().getSlots(); i < container.container.getCombinedHandler().getSlots() + Inventory.INVENTORY_SIZE; i++)
+        for(int i = container.getWrapper().getCombinedHandler().getSlots(); i < container.getWrapper().getCombinedHandler().getSlots() + Inventory.INVENTORY_SIZE; i++)
         {
             list.add(container.getSlot(i));
         }

@@ -21,7 +21,7 @@ import com.tiviacz.travelersbackpack.init.ModItems;
 import com.tiviacz.travelersbackpack.init.ModTags;
 import com.tiviacz.travelersbackpack.inventory.ITravelersBackpackContainer;
 import com.tiviacz.travelersbackpack.inventory.Tiers;
-import com.tiviacz.travelersbackpack.inventory.TravelersBackpackContainer;
+import com.tiviacz.travelersbackpack.inventory.BackpackWrapper;
 import com.tiviacz.travelersbackpack.items.TravelersBackpackItem;
 import com.tiviacz.travelersbackpack.items.UpgradeItem;
 import com.tiviacz.travelersbackpack.network.ClientboundSendMessagePacket;
@@ -127,7 +127,7 @@ public class ForgeEventHandler
                             CapabilityUtils.getCapability(player).ifPresent(ITravelersBackpack::removeWearable);
 
                             CapabilityUtils.synchronise(player);
-                            CapabilityUtils.synchroniseToOthers(player);
+                          //  CapabilityUtils.synchroniseToOthers(player);
 
                             event.setCanceled(true);
                             event.setCancellationResult(InteractionResult.SUCCESS); //#TODO check with older forge
@@ -140,7 +140,7 @@ public class ForgeEventHandler
 
         if (player.isShiftKeyDown() && hand == InteractionHand.MAIN_HAND && player.getMainHandItem().is(ModTags.SLEEPING_BAGS) && level.getBlockEntity(pos) instanceof TravelersBackpackBlockEntity blockEntity) {
             ItemStack oldSleepingBag = blockEntity.getProperSleepingBag().getBlock().asItem().getDefaultInstance();
-            blockEntity.setSleepingBagColor(ShapedBackpackRecipe.getProperColor(player.getMainHandItem().getItem()));
+            //blockEntity.getWrapper().setSleepingBagColor(ShapedBackpackRecipe.getProperColor(player.getMainHandItem().getItem()));
             if (!level.isClientSide) {
                 Containers.dropItemStack(level, pos.getX(), pos.above().getY(), pos.getZ(), oldSleepingBag);
                 stack.shrink(1);
@@ -155,38 +155,38 @@ public class ForgeEventHandler
         if (player.isShiftKeyDown() && player.getMainHandItem().getItem() == ModItems.BLANK_UPGRADE.get() && level.getBlockEntity(pos) instanceof TravelersBackpackBlockEntity blockEntity) {
             NonNullList<ItemStack> list = NonNullList.create();
 
-            for (int i = 0; i < blockEntity.getCombinedHandler().getSlots(); i++) {
-                ItemStack stackInSlot = blockEntity.getCombinedHandler().getStackInSlot(i);
+            for (int i = 0; i < blockEntity.getWrapper().getCombinedHandler().getSlots(); i++) {
+                ItemStack stackInSlot = blockEntity.getWrapper().getCombinedHandler().getStackInSlot(i);
 
                 if (!stackInSlot.isEmpty()) {
                     list.add(stackInSlot);
-                    blockEntity.getCombinedHandler().setStackInSlot(i, ItemStack.EMPTY);
+                    blockEntity.getWrapper().getCombinedHandler().setStackInSlot(i, ItemStack.EMPTY);
                 }
             }
 
-            list.addAll(UpgradeItem.getUpgrades(blockEntity));
+            list.addAll(UpgradeItem.getUpgrades(blockEntity.getWrapper()));
 
             //Remove unsortable slots
-            if (!blockEntity.getSlotManager().getUnsortableSlots().isEmpty()) {
-                blockEntity.getSlotManager().getUnsortableSlots().clear();
+            if (!blockEntity.getWrapper().getSlotManager().getUnsortableSlots().isEmpty()) {
+                blockEntity.getWrapper().getSlotManager().getUnsortableSlots().clear();
             }
 
             //Remove memory slots
-            if (!blockEntity.getSlotManager().getMemorySlots().isEmpty()) {
-                blockEntity.getSlotManager().getMemorySlots().clear();
+            if (!blockEntity.getWrapper().getSlotManager().getMemorySlots().isEmpty()) {
+                blockEntity.getWrapper().getSlotManager().getMemorySlots().clear();
             }
 
             //Drain excessive fluid
-            int fluidAmountLeft = blockEntity.getLeftTank().isEmpty() ? 0 : blockEntity.getLeftTank().getFluidAmount();
+            int fluidAmountLeft = blockEntity.getWrapper().getLeftTank().isEmpty() ? 0 : blockEntity.getWrapper().getLeftTank().getFluidAmount();
 
             if (fluidAmountLeft > Tiers.LEATHER.getTankCapacity()) {
-                blockEntity.getLeftTank().drain(fluidAmountLeft - Tiers.LEATHER.getTankCapacity(), IFluidHandler.FluidAction.EXECUTE);
+                blockEntity.getWrapper().getLeftTank().drain(fluidAmountLeft - Tiers.LEATHER.getTankCapacity(), IFluidHandler.FluidAction.EXECUTE);
             }
 
-            int fluidAmountRight = blockEntity.getRightTank().isEmpty() ? 0 : blockEntity.getRightTank().getFluidAmount();
+            int fluidAmountRight = blockEntity.getWrapper().getRightTank().isEmpty() ? 0 : blockEntity.getWrapper().getRightTank().getFluidAmount();
 
             if (fluidAmountRight > Tiers.LEATHER.getTankCapacity()) {
-                blockEntity.getRightTank().drain(fluidAmountRight - Tiers.LEATHER.getTankCapacity(), IFluidHandler.FluidAction.EXECUTE);
+                blockEntity.getWrapper().getRightTank().drain(fluidAmountRight - Tiers.LEATHER.getTankCapacity(), IFluidHandler.FluidAction.EXECUTE);
             }
 
             if (!level.isClientSide) {
@@ -194,18 +194,18 @@ public class ForgeEventHandler
             }
 
             //Change size of Tool slots and Storage slots
-            blockEntity.getHandler().setSize(Tiers.LEATHER.getStorageSlots());
-            blockEntity.getToolSlotsHandler().setSize(Tiers.LEATHER.getToolSlots());
+            blockEntity.getWrapper().getHandler().setSize(Tiers.LEATHER.getStorageSlots());
+            blockEntity.getWrapper().getToolSlotsHandler().setSize(Tiers.LEATHER.getToolSlots());
 
             //Reset tier
-            blockEntity.resetTier();
+           // blockEntity.resetTier();
 
             //Reset Tanks
-            blockEntity.getLeftTank().setCapacity(Tiers.LEATHER.getTankCapacity());
-            blockEntity.getRightTank().setCapacity(Tiers.LEATHER.getTankCapacity());
+            blockEntity.getWrapper().getLeftTank().setCapacity(Tiers.LEATHER.getTankCapacity());
+            blockEntity.getWrapper().getRightTank().setCapacity(Tiers.LEATHER.getTankCapacity());
 
             //Reset Settings
-            blockEntity.getSettingsManager().loadDefaults();
+            blockEntity.getWrapper().getSettingsManager().loadDefaults();
 
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.SUCCESS);
@@ -471,7 +471,7 @@ public class ForgeEventHandler
     {
         if(TravelersBackpackConfig.enableBackpackAbilities && event.phase == TickEvent.Phase.END && BackpackAbilities.isOnList(BackpackAbilities.ITEM_ABILITIES_LIST, CapabilityUtils.getWearingBackpack(event.player)))
         {
-            TravelersBackpackContainer.abilityTick(event.player);
+            BackpackWrapper.abilityTick(event.player);
             if(!checkAbilitiesForRemoval && BackpackAbilities.isOnList(BackpackAbilities.ITEM_ABILITIES_REMOVAL_LIST, CapabilityUtils.getWearingBackpack(event.player))) checkAbilitiesForRemoval = true;
         }
 
